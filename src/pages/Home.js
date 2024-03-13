@@ -1,13 +1,27 @@
 import React from 'react';
+import { useState, useEffect } from 'react';
 import MovieListing from '../components/MovieListing';
 
 const Home = () => {
-  // Dummy movie data for demonstration
-  const movies = [
-    { id: 1, title: 'Movie 1', genre: 'Action', ageRating: 'PG-13' },
-    { id: 2, title: 'Movie 2', genre: 'Comedy', ageRating: 'PG' },
-    // Add more movie objects as needed
-  ];
+  const [movies, setMovies] = useState([]);
+
+  // fetch movie data from the backend
+  useEffect(() => {
+    const fetchMovies = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/movies');
+        if (!response.ok) {
+          throw new Error('Failed to fetch movie data');
+        }
+        const data = await response.json();
+        setMovies(data);
+      } catch (error) {
+        console.error('Error fetching movie data:', error.message);
+      }
+    };
+
+    fetchMovies();
+  }, []);
 
   return (
     <div>
