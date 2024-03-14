@@ -1,6 +1,11 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import MovieListing from '../components/MovieListing';
+import GenreFilter from '../components/GenreFilter';
+import LanguageFilter from '../components/LanguageFilter';
+import StartTimeFilter from '../components/StartTimeFilter';
+import AgeRatingFilter from '../components/AgeRatingFilter';
+
 
 const Home = () => {
   const [movies, setMovies] = useState([]);
@@ -31,7 +36,7 @@ const Home = () => {
   
   const fetchMoviesByGenre = async (genre) => {
     try {
-      const response = await fetch('http://localhost:8080/movies/genre?genre=${genre}');
+      const response = await fetch(`http://localhost:8080/movies/genre?genre=${genre}`);
       if (!response.ok) {
         throw new Error('Failed to fetch movie data by genre');
       }
@@ -91,26 +96,40 @@ const Home = () => {
     fetchAllMovies();
   }, []);
 
+  //Filters work on alredy filtered list
+  useEffect(() => {
+    const applyFilters = async () => {
+      let filteredMovies = [...movies]; // Creates a copy of the movies array
+      if (genreFilter) {
+        filteredMovies = await fetchMoviesByGenre(genreFilter);
+      }
+      if (languageFilter) {
+        filteredMovies = await fetchMoviesByLanguage(languageFilter);
+      }
+      if (timeFilter) {
+        filteredMovies = await fetchMoviesByTime(timeFilter);
+      }
+      if (ageRatingFilter) {
+        filteredMovies = await fetchMoviesByAgeRating(ageRatingFilter);
+      }
+      setMovies(filteredMovies);
+    };
+  
+    applyFilters();
+  }, [genreFilter, languageFilter, timeFilter, ageRatingFilter]);
+  
+
 
   return (
     <div>
-      <h1>Home</h1>
+      <h1>Filmid</h1>
       <h5>Filtering</h5>
-      <select value={genreFilter} onChange={(e) => setGenreFilter(e.target.value)}>
-        <option value="">Select Genre</option>
-        <option value="action">Action</option>
-        <option value="comedy">Comedy</option>
-        <option value="drama">Drama</option>
-        <option value="romance">Romance</option>
-        <option value="horror">Horror</option>
-      </select>
+      <GenreFilter genreFilter={genreFilter} setGenreFilter={setGenreFilter} />
+      <LanguageFilter languageFilter={languageFilter} setLanguageFilter={setLanguageFilter} />
+      <StartTimeFilter startTimeFilter={timeFilter} setStartTimeFilter={setTimeFilter} />
+      <AgeRatingFilter ageRatingFilter={ageRatingFilter} setAgeRatingFilter={setAgeRatingFilter} />
 
-      <input
-        type="text"
-        placeholder="Enter language"
-        value={languageFilter}
-        onChange={(e) => setLanguageFilter(e.target.value)}
-      />
+      
 
       <MovieListing
         movies={movies}
