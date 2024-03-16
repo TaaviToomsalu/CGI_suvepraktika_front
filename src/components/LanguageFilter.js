@@ -1,16 +1,22 @@
 import React from 'react';
 
 const LanguageFilter = ({ languageFilter, setLanguageFilter }) => {
+  // Define the list of languages
+  const languages = ["English", "Spanish", "French", "German", "Italian"];
+
   return (
     <div>
       <label htmlFor="language">Language:</label>
-      <input
-        type="text"
+      <select
         id="language"
-        placeholder="Enter language"
         value={languageFilter}
         onChange={(e) => setLanguageFilter(e.target.value)}
-      />
+      >
+        <option value="">All</option>
+        {languages.map((language, index) => (
+          <option key={index} value={language}>{language}</option>
+        ))}
+      </select>
     </div>
   );
 };

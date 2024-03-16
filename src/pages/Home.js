@@ -6,119 +6,114 @@ import LanguageFilter from '../components/LanguageFilter';
 import StartTimeFilter from '../components/StartTimeFilter';
 import AgeRatingFilter from '../components/AgeRatingFilter';
 
-
 const Home = () => {
   const [movies, setMovies] = useState([]);
+  const [filteredMovies, setFilteredMovies] = useState([]);
   const [genreFilter, setGenreFilter] = useState('');
   const [ageRatingFilter, setAgeRatingFilter] = useState('');
   const [timeFilter, setTimeFilter] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
-
-
+  const [loading, setLoading] = useState(true);
 
   // Fetch all movies
-  
   const fetchAllMovies = async () => {
+    setLoading(true);
     try {
       const response = await fetch('http://localhost:8080/movies');
       if (!response.ok) {
         throw new Error('Failed to fetch movie data');
       }
       const data = await response.json();
-      setMovies(data);
-      console.log('Movies:', data);
-    } catch (error) {
-      console.error('Error fetching movie data:', error.message);
-    }
-  };
-    
-  //Fetch movies based on genre
-  
-  const fetchMoviesByGenre = async (genre) => {
-    try {
-      const response = await fetch(`http://localhost:8080/movies/genre?genre=${genre}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch movie data by genre');
-      }
-      const data = await response.json();
-      setMovies(data);
-      console.log('Movies:', data);
-    } catch (error) {
-      console.error('Error fetching movie data:', error.message);
-    }
-  };
-    
-  
 
+      // Convert startTime arrays to Date objects
+      const updatedData = data.map(movie => {
+        const startTimeArray = movie.startTime;
+        const startTimeDate = new Date();
+        startTimeDate.setHours(startTimeArray[0]);
+        startTimeDate.setMinutes(startTimeArray[1]);
+        return { ...movie, startTime: startTimeDate };
+      });
+
+      setMovies(updatedData);
+      setFilteredMovies(updatedData);
+      setLoading(false);
+      console.log(updatedData)
+    } catch (error) {
+      console.error('Error fetching movie data:', error.message);
+      return [];
+    }
+  };
+    
+  //fetch movies by filter
+  const fetchMovies = async (endpoint) => {
+    try {
+      const response = await fetch(`http://localhost:8080/movies/${endpoint}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch movie data by ${endpoint}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error(`Error fetching movie data by ${endpoint}:`, error.message);
+      return [];
+    }
+  };
+  
+  // Fetch movies based on genre
+  const fetchMoviesByGenre = async (genre) => {
+    return await fetchMovies(`genre?genre=${genre}`);
+  };
+  
   // Fetch movies based on age rating
   const fetchMoviesByAgeRating = async (ageRating) => {
-    try {
-      const response = await fetch(`http://localhost:8080/movies/age-rating?ageRating=${ageRating}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch movie data by age rating');
-      }
-      const data = await response.json();
-      setMovies(data);
-    } catch (error) {
-      console.error('Error fetching movie data by age rating:', error.message);
-    }
+    return await fetchMovies(`age-rating?ageRating=${ageRating}`);
   };
-
+  
   // Fetch movies based on language
   const fetchMoviesByLanguage = async (language) => {
-    try {
-      const response = await fetch(`http://localhost:8080/movies/language?language=${language}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch movie data by age rating');
-      }
-      const data = await response.json();
-      setMovies(data);
-    } catch (error) {
-      console.error('Error fetching movie data by age rating:', error.message);
-    }
+    return await fetchMovies(`language?language=${language}`);
   };
-
+  
   // Fetch movies based on start time
   const fetchMoviesByTime = async (startTime) => {
-    try {
-      const response = await fetch(`http://localhost:8080/movies/start-time?startTime=${startTime}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch movie data by age rating');
-      }
-      const data = await response.json();
-      setMovies(data);
-    } catch (error) {
-      console.error('Error fetching movie data by age rating:', error.message);
-    }
+    return await fetchMovies(`start-time?startTime=${startTime}`);
   };
 
   useEffect(() => {
     fetchAllMovies();
   }, []);
 
-  //Filters work on alredy filtered list
+  //Filters work on already filtered list
   useEffect(() => {
-    const applyFilters = async () => {
-      let filteredMovies = [...movies]; // Creates a copy of the movies array
-      if (genreFilter) {
-        filteredMovies = await fetchMoviesByGenre(genreFilter);
-      }
-      if (languageFilter) {
-        filteredMovies = await fetchMoviesByLanguage(languageFilter);
-      }
-      if (timeFilter) {
-        filteredMovies = await fetchMoviesByTime(timeFilter);
-      }
-      if (ageRatingFilter) {
-        filteredMovies = await fetchMoviesByAgeRating(ageRatingFilter);
-      }
-      setMovies(filteredMovies);
-    };
+    if (!loading) { 
+      const applyFilters = async () => {
+        try {
+          let filtered = [...filteredMovies];
+          const filters = [
+            { filter: genreFilter, fetchData: fetchMoviesByGenre },
+            { filter: languageFilter, fetchData: fetchMoviesByLanguage },
+            { filter: timeFilter, fetchData: fetchMoviesByTime },
+            { filter: ageRatingFilter, fetchData: fetchMoviesByAgeRating }
+          ];
   
-    applyFilters();
+          for (const { filter, fetchData } of filters) {
+            if (filter) {
+              const filteredData = await fetchData(filter);
+              filtered = filtered.filter(filteredMovie =>
+                filteredData.some(movie => movie.id === filteredMovie.id)
+              );
+            }
+          }
+  
+          setFilteredMovies(filtered);
+        } catch (error) {
+          console.error('Error applying filters:', error.message);
+        }
+      };
+  
+      applyFilters();
+    } 
   }, [genreFilter, languageFilter, timeFilter, ageRatingFilter]);
   
-
 
   return (
     <div>
@@ -129,15 +124,17 @@ const Home = () => {
       <StartTimeFilter startTimeFilter={timeFilter} setStartTimeFilter={setTimeFilter} />
       <AgeRatingFilter ageRatingFilter={ageRatingFilter} setAgeRatingFilter={setAgeRatingFilter} />
 
-      
-
+      {loading ? (
+      <p>Loading...</p> // Render a loading indicator
+    ) : (
       <MovieListing
-        movies={movies}
+        movies={filteredMovies}
         genreFilter={genreFilter}
         ageRatingFilter={ageRatingFilter}
         timeFilter={timeFilter}
         languageFilter={languageFilter}
       />
+    )}
     </div>
   );
 };
