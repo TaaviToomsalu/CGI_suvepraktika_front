@@ -5,7 +5,7 @@ const AgeRatingFilter = ({ ageRatingFilter, setAgeRatingFilter }) => {
     <div>
       <label htmlFor="ageRating">Age Rating:</label>
       <select id="ageRating" value={ageRatingFilter} onChange={(e) => setAgeRatingFilter(e.target.value)}>
-        <option value="">Select Age Rating</option>
+        <option value="">All</option>
         <option value="G">G</option>
         <option value="PG">PG</option>
         <option value="PG-13">PG-13</option>

@@ -5,7 +5,7 @@ const GenreFilter = ({ genreFilter, setGenreFilter }) => {
     <div>
       <label htmlFor="genre">Genre:</label>
       <select id="genre" value={genreFilter} onChange={(e) => setGenreFilter(e.target.value)}>
-        <option value="">Select Genre</option>
+        <option value="">All</option>
         <option value="Action">Action</option>
         <option value="Comedy">Comedy</option>
         <option value="Drama">Drama</option>

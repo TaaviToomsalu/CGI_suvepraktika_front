@@ -7,7 +7,7 @@ import StartTimeFilter from '../components/StartTimeFilter';
 import AgeRatingFilter from '../components/AgeRatingFilter';
 
 const Home = () => {
-  const [movies, setMovies] = useState([]);
+  const [allMovies, setAllMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [genreFilter, setGenreFilter] = useState('');
   const [ageRatingFilter, setAgeRatingFilter] = useState('');
@@ -25,7 +25,7 @@ const Home = () => {
       }
       const data = await response.json();
 
-      setMovies(data);
+      setAllMovies(data);
       setFilteredMovies(data);
       setLoading(false);
       console.log(data)
@@ -49,22 +49,19 @@ const Home = () => {
     }
   };
   
-  // Fetch movies based on genre
+  // Fetch movies based on filter choice
   const fetchMoviesByGenre = async (genre) => {
     return await fetchMovies(`genre?genre=${genre}`);
   };
   
-  // Fetch movies based on age rating
   const fetchMoviesByAgeRating = async (ageRating) => {
     return await fetchMovies(`age-rating?ageRating=${ageRating}`);
   };
   
-  // Fetch movies based on language
   const fetchMoviesByLanguage = async (language) => {
     return await fetchMovies(`language?language=${language}`);
   };
   
-  // Fetch movies based on start time
   const fetchMoviesByTime = async (startTime) => {
     return await fetchMovies(`start-time?startTime=${startTime}`);
   };
@@ -78,7 +75,7 @@ const Home = () => {
     if (!loading) { 
       const applyFilters = async () => {
         try {
-          let filtered = [...filteredMovies];
+          let filtered = [...allMovies];
           const filters = [
             { filter: genreFilter, fetchData: fetchMoviesByGenre },
             { filter: languageFilter, fetchData: fetchMoviesByLanguage },
@@ -87,7 +84,7 @@ const Home = () => {
           ];
   
           for (const { filter, fetchData } of filters) {
-            if (filter) {
+            if (filter !== undefined && filter !== "") {
               const filteredData = await fetchData(filter);
               filtered = filtered.filter(filteredMovie =>
                 filteredData.some(movie => movie.id === filteredMovie.id)
