@@ -25,19 +25,10 @@ const Home = () => {
       }
       const data = await response.json();
 
-      // Convert startTime arrays to Date objects
-      const updatedData = data.map(movie => {
-        const startTimeArray = movie.startTime;
-        const startTimeDate = new Date();
-        startTimeDate.setHours(startTimeArray[0]);
-        startTimeDate.setMinutes(startTimeArray[1]);
-        return { ...movie, startTime: startTimeDate };
-      });
-
-      setMovies(updatedData);
-      setFilteredMovies(updatedData);
+      setMovies(data);
+      setFilteredMovies(data);
       setLoading(false);
-      console.log(updatedData)
+      console.log(data)
     } catch (error) {
       console.error('Error fetching movie data:', error.message);
       return [];
@@ -118,14 +109,14 @@ const Home = () => {
   return (
     <div>
       <h1>Filmid</h1>
-      <h5>Filtering</h5>
+      <h3>Filtering</h3>
       <GenreFilter genreFilter={genreFilter} setGenreFilter={setGenreFilter} />
       <LanguageFilter languageFilter={languageFilter} setLanguageFilter={setLanguageFilter} />
       <StartTimeFilter startTimeFilter={timeFilter} setStartTimeFilter={setTimeFilter} />
       <AgeRatingFilter ageRatingFilter={ageRatingFilter} setAgeRatingFilter={setAgeRatingFilter} />
 
       {loading ? (
-      <p>Loading...</p> // Render a loading indicator
+      <p>Loading...</p>
     ) : (
       <MovieListing
         movies={filteredMovies}

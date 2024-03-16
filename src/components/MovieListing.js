@@ -1,25 +1,40 @@
 const MovieListing = ({ movies }) => {
-  const formatStartTime = (startTime) => {
-    // Extract hour and minute from the startTime
-    const hour = startTime.getHours().toString().padStart(2, '0'); // Ensure 2-digit representation
-    const minute = startTime.getMinutes().toString().padStart(2, '0'); // Ensure 2-digit representation
-    return `${hour}:${minute}`;
-  };
+  const formatStartTime = (startTimeArray) => {
+    // Ensure the startTimeArray has two elements (hour and minute)
+    if (Array.isArray(startTimeArray) && startTimeArray.length === 2) {
+        const hour = startTimeArray[0].toString().padStart(2, '0');
+        const minute = startTimeArray[1].toString().padStart(2, '0');
+        return `${hour}:${minute}`;
+    } else {
+        return 'Invalid start time';
+    }
+};
 
   return (
     <div>
-      <h2>Movie Listing</h2>
-      <ul>
-      {movies && movies.map((movie) => (
-          <li key={movie.id}>
-            <h3>{movie.title}</h3>
-            <p>Genre: {movie.genre}</p>
-            <p>Age Rating: {movie.ageRating}</p>
-            <p>Start Time: {formatStartTime(movie.startTime)}</p>
-            <p>Language: {movie.language}</p>
-          </li>
-        ))}
-      </ul>
+      <h3>Movie Listing</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Genre</th>
+            <th>Age Rating</th>
+            <th>Start Time</th>
+            <th>Language</th>
+          </tr>
+        </thead>
+        <tbody>
+          {movies && movies.map((movie) => (
+            <tr key={movie.id}>
+              <td>{movie.title}</td>
+              <td>{movie.genre}</td>
+              <td>{movie.ageRating}</td>
+              <td>{formatStartTime(movie.startTime)}</td>
+              <td>{movie.language}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
