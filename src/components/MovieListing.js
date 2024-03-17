@@ -1,4 +1,4 @@
-const MovieListing = ({ movies }) => {
+const MovieListing = ({ movies, addToViewingHistory }) => {
   const formatStartTime = (startTimeArray) => {
     // Ensure the startTimeArray has two elements (hour and minute)
     if (Array.isArray(startTimeArray) && startTimeArray.length === 2) {
@@ -8,7 +8,12 @@ const MovieListing = ({ movies }) => {
     } else {
         return 'Invalid start time';
     }
-};
+  };
+
+  const handleAddToViewingHistory = (movieId) => {
+    // Call the function to add the movie to the user's viewing history
+    addToViewingHistory(movieId);
+  };
 
   return (
     <div>
@@ -21,6 +26,7 @@ const MovieListing = ({ movies }) => {
             <th>Age Rating</th>
             <th>Start Time</th>
             <th>Language</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +37,9 @@ const MovieListing = ({ movies }) => {
               <td>{movie.ageRating}</td>
               <td>{formatStartTime(movie.startTime)}</td>
               <td>{movie.language}</td>
+              <td>
+                <button onClick={() => handleAddToViewingHistory(movie.id)}>Add to Viewing History</button>
+              </td>
             </tr>
           ))}
         </tbody>

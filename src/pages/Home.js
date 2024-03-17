@@ -5,6 +5,7 @@ import GenreFilter from '../components/GenreFilter';
 import LanguageFilter from '../components/LanguageFilter';
 import StartTimeFilter from '../components/StartTimeFilter';
 import AgeRatingFilter from '../components/AgeRatingFilter';
+import UserManagement from '../components/UserManagement';
 
 const Home = () => {
   const [allMovies, setAllMovies] = useState([]);
@@ -14,6 +15,10 @@ const Home = () => {
   const [timeFilter, setTimeFilter] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // State for managing selected movies
+  const [selectedMovies, setSelectedMovies] = useState([]);
+
 
   // Fetch all movies
   const fetchAllMovies = async () => {
@@ -28,7 +33,6 @@ const Home = () => {
       setAllMovies(data);
       setFilteredMovies(data);
       setLoading(false);
-      console.log(data)
     } catch (error) {
       console.error('Error fetching movie data:', error.message);
       return [];
@@ -101,11 +105,40 @@ const Home = () => {
       applyFilters();
     } 
   }, [genreFilter, languageFilter, timeFilter, ageRatingFilter]);
-  
 
+
+  // Function to add a movie to the user's viewing history
+  const addToViewingHistory = async (movieId) => {
+    try {
+      // Make a POST request to your backend API to update the user's viewing history
+      const response = await fetch(`http://localhost:8080/users/viewing-history/${movieId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // You can include any additional data here, such as user ID
+        body: JSON.stringify({
+          userId: 'user123', // Example user ID
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add movie to viewing history');
+      }
+      // Add the selected movie ID to the state
+      setSelectedMovies([...selectedMovies, movieId]);
+    } catch (error) {
+      console.error('Error adding movie to viewing history:', error.message);
+    }
+  };
+
+  
+  
   return (
     <div>
       <h1>Filmid</h1>
+      
+      <UserManagement />
+
       <h3>Filtering</h3>
       <GenreFilter genreFilter={genreFilter} setGenreFilter={setGenreFilter} />
       <LanguageFilter languageFilter={languageFilter} setLanguageFilter={setLanguageFilter} />
@@ -117,10 +150,7 @@ const Home = () => {
     ) : (
       <MovieListing
         movies={filteredMovies}
-        genreFilter={genreFilter}
-        ageRatingFilter={ageRatingFilter}
-        timeFilter={timeFilter}
-        languageFilter={languageFilter}
+        addToViewingHistory={addToViewingHistory}
       />
     )}
     </div>
