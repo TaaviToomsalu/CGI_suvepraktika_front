@@ -1,6 +1,5 @@
-const MovieListing = ({ movies, addToViewingHistory }) => {
+const MovieListing = ({ movies, addToViewingHistory, selectedUser }) => {
   const formatStartTime = (startTimeArray) => {
-    // Ensure the startTimeArray has two elements (hour and minute)
     if (Array.isArray(startTimeArray) && startTimeArray.length === 2) {
         const hour = startTimeArray[0].toString().padStart(2, '0');
         const minute = startTimeArray[1].toString().padStart(2, '0');
@@ -11,8 +10,7 @@ const MovieListing = ({ movies, addToViewingHistory }) => {
   };
 
   const handleAddToViewingHistory = (movieId) => {
-    // Call the function to add the movie to the user's viewing history
-    addToViewingHistory(movieId);
+    addToViewingHistory(movieId, selectedUser);
   };
 
   return (

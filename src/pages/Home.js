@@ -15,6 +15,7 @@ const Home = () => {
   const [timeFilter, setTimeFilter] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   // State for managing selected movies
   const [selectedMovies, setSelectedMovies] = useState([]);
@@ -95,41 +96,35 @@ const Home = () => {
               );
             }
           }
-  
           setFilteredMovies(filtered);
         } catch (error) {
           console.error('Error applying filters:', error.message);
         }
       };
-  
       applyFilters();
     } 
   }, [genreFilter, languageFilter, timeFilter, ageRatingFilter]);
 
 
   // Function to add a movie to the user's viewing history
-  const addToViewingHistory = async (movieId) => {
+  const addToViewingHistory = async (movieId, userId) => {
     try {
-      // Make a POST request to your backend API to update the user's viewing history
-      const response = await fetch(`http://localhost:8080/users/viewing-history/${movieId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        // You can include any additional data here, such as user ID
-        body: JSON.stringify({
-          userId: 'user123', // Example user ID
-        }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to add movie to viewing history');
-      }
-      // Add the selected movie ID to the state
-      setSelectedMovies([...selectedMovies, movieId]);
+        const response = await fetch(`http://localhost:8080/users/viewing-history/${movieId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: userId,
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to add movie to viewing history');
+        }
+        
     } catch (error) {
-      console.error('Error adding movie to viewing history:', error.message);
+        console.error('Error adding movie to viewing history:', error.message);
     }
-  };
+};
 
   
   
@@ -137,20 +132,20 @@ const Home = () => {
     <div>
       <h1>Filmid</h1>
       
-      <UserManagement />
+      <UserManagement selectedUser={selectedUser} setSelectedUser={setSelectedUser} />
 
       <h3>Filtering</h3>
       <GenreFilter genreFilter={genreFilter} setGenreFilter={setGenreFilter} />
       <LanguageFilter languageFilter={languageFilter} setLanguageFilter={setLanguageFilter} />
       <StartTimeFilter startTimeFilter={timeFilter} setStartTimeFilter={setTimeFilter} />
       <AgeRatingFilter ageRatingFilter={ageRatingFilter} setAgeRatingFilter={setAgeRatingFilter} />
-
       {loading ? (
       <p>Loading...</p>
     ) : (
       <MovieListing
         movies={filteredMovies}
         addToViewingHistory={addToViewingHistory}
+        selectedUser={selectedUser}
       />
     )}
     </div>
