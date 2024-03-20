@@ -9,39 +9,54 @@ const MovieListing = ({ movies, addToViewingHistory, selectedUser }) => {
     }
   };
 
-  const handleAddToViewingHistory = (movieId) => {
-    addToViewingHistory(movieId, selectedUser);
+  // Group movies by day of the week
+  const moviesByDayOfWeek = {};
+  movies.forEach((movie) => {
+    const dayOfWeek = movie.dayOfWeek;
+    if (!moviesByDayOfWeek[dayOfWeek]) {
+      moviesByDayOfWeek[dayOfWeek] = [];
+    }
+    moviesByDayOfWeek[dayOfWeek].push(movie);
+  });
+
+  const handleAddToViewingHistory = (movieTitle) => {
+    addToViewingHistory(movieTitle, selectedUser);
   };
 
   return (
     <div>
       <h3>Movie Listing</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Genre</th>
-            <th>Age Rating</th>
-            <th>Start Time</th>
-            <th>Language</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {movies && movies.map((movie) => (
-            <tr key={movie.id}>
-              <td>{movie.title}</td>
-              <td>{movie.genre}</td>
-              <td>{movie.ageRating}</td>
-              <td>{formatStartTime(movie.startTime)}</td>
-              <td>{movie.language}</td>
-              <td>
-                <button onClick={() => handleAddToViewingHistory(movie.id)}>Add to Viewing History</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {Object.keys(moviesByDayOfWeek).map((dayOfWeek) => (
+        <div key={dayOfWeek}>
+          <h4>{dayOfWeek}</h4>
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Age Rating</th>
+                <th>Start Time</th>
+                <th>Language</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {moviesByDayOfWeek[dayOfWeek].map((movie) => (
+                <tr key={movie.id}>
+                  <td>{movie.title}</td>
+                  <td>{movie.genre}</td>
+                  <td>{movie.ageRating}</td>
+                  <td>{formatStartTime(movie.startTime)}</td>
+                  <td>{movie.language}</td>
+                  <td>
+                    <button onClick={() => handleAddToViewingHistory(movie.title)}>Add to Viewing History</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </div>
   );
 };

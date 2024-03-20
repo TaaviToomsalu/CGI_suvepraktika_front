@@ -31,6 +31,7 @@ const Home = () => {
       }
       const data = await response.json();
 
+      console.log(data);
       setAllMovies(data);
       setFilteredMovies(data);
       setLoading(false);
@@ -48,6 +49,7 @@ const Home = () => {
         throw new Error(`Failed to fetch movie data by ${endpoint}`);
       }
       return await response.json();
+      console.log("Filter by genre success")
     } catch (error) {
       console.error(`Error fetching movie data by ${endpoint}:`, error.message);
       return [];
@@ -107,9 +109,9 @@ const Home = () => {
 
 
   // Function to add a movie to the user's viewing history
-  const addToViewingHistory = async (movieId, userId) => {
+  const addToViewingHistory = async (movieTitle, userId) => {
     try {
-        const response = await fetch(`http://localhost:8080/users/viewing-history/${movieId}`, {
+        const response = await fetch(`http://localhost:8080/users/viewing-history/${movieTitle}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
