@@ -20,6 +20,8 @@ npm install
 
 4. Start the development server:
 
+npm start
+
 This will run the project on your local machine. Open your browser and go to `http://localhost:3000` to view the application.
 
 ## Features
